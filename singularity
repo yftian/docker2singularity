@@ -1,0 +1,101 @@
+# Created with `C:/Users/tiany/AppData/Local/Programs/Python/Python37/Lib/site-packages/docker2singularity/docker2singularity.py dockerfiles/redis`
+
+Bootstrap: docker
+From: ubuntu:12.04
+
+%setup
+    # Commands to be run on the host system after the os has been copied
+    # Has access to $SINGULARITY_ROOTFS to access the root filesystem
+    # Acts like ordinary shell
+    
+
+
+%files
+    # Files to be copied to the container before %post
+    # Docker ADD, COPY
+    # Must be in the format:
+    #
+    # filename1
+    # filename2 /home/placetogo/
+    #
+    # filename1 will be placed into the root of the filesystem
+    
+
+
+%labels
+    # Metadata to add to the image
+    # Must be in the format
+    #
+    # <key> <value>
+    # VERSION 5
+    
+
+
+%post
+    # commands to be executed inside container during bootstrap
+    # Has access to %files and %setup, and maybe %labels via /.singularity.d/labels.json
+    # Has access to $SINGULARITY_ENVIRONMENT to be able to set build time generated environment variables available at run time
+    # For example:
+    #
+    # echo 'export JAWA_SEZ=wutini' >> $SINGULARITY_ENVIRONMENT
+    
+    # FROM ubuntu:12.04
+    # MAINTAINER dockerfiles http://dockerfiles...
+    # RUN echo deb http://archive.ubuntu...
+    echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
+
+    # RUN 
+    apt-get update
+
+    # RUN 
+    apt-get upgrade -y
+
+    # RUN apt-get install -y gcc make g+...
+    apt-get install -y gcc make g++ build-essential libc6-dev tcl wget
+
+    # RUN wget http://download.redis.io/...
+    wget http://download.redis.io/redis-stable.tar.gz -O - | tar -xvz
+
+    # RUN 
+    (cd /redis-stable && make)
+
+    # RUN (cd /redis-stable && make test...
+    (cd /redis-stable && make test)
+
+    # RUN 
+    mkdir -p /redis-data
+
+    # VOLUME 
+    # EXPOSE 
+    # ENTRYPOINT [/redis-stable/src/redis-serve...
+    # CMD 
+
+
+%environment
+    # Environmental variables to be added AT RUN TIME
+    # These variables are not available in %post
+    # This must be in the form of:
+    #
+    # FOO=BAR
+    # ABC=123
+    # export FOO ABC
+    #
+    
+
+
+
+%runscript
+    # commands to be executed when the container runs
+    if [ -z "$1" ]
+    then
+        exec "/redis-stable/src/redis-server" "--dir"  "/redis-data"
+    else
+        exec "/redis-stable/src/redis-server" "$@"
+    fi
+
+
+%test
+    # Singularity can run tests, put that here
+    # Acts like a normal shell
+    
+
